@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>价值优先记账工作台 · CYBER</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+    :root {
+      --bg: #0a0a12;
+      --card: #12121f;
+      --border: #2a2a4a;
+      --cyan: #00f0ff;
+      --pink: #ff00aa;
+      --purple: #b400ff;
+      --green: #00ff9d;
+      --text: #e0e0ff;
+      --muted: #8888aa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans SC', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background-image: 
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      text-align: center;
+      margin: 20px 0 24px;
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(0, 240, 255, 0.4);
+      letter-spacing: 2px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.08);
+      position: relative;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 11px 12px;
+      background: #0d0d18;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 2px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #00c4d4, #00f0ff);
+      color: #000;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      margin-top: 10px;
+    }
+
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .score-item select {
+      width: 130px;
+      margin: 0;
+      font-size: 13px;
+      padding: 8px;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 14px 0 0;
+      padding: 12px;
+      border-radius: 2px;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .result.high {
+      background: rgba(0, 255, 157, 0.1);
+      color: var(--green);
+      border: 1px solid var(--green);
+      text-shadow: 0 0 8px var(--green);
+    }
+
+    .result.mid {
+      background: rgba(255, 170, 0, 0.1);
+      color: #ffaa00;
+      border: 1px solid #ffaa00;
+    }
+
+    .result.low {
+      background: rgba(255, 0, 170, 0.1);
+      color: var(--pink);
+      border: 1px solid var(--pink);
+      text-shadow: 0 0 8px var(--pink);
+    }
+
+    .record {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+      font-size: 14px;
+    }
+
+    .record:last-child { border-bottom: none; }
+
+    .record-amount {
+      color: var(--pink);
+      font-weight: 600;
+      text-shadow: 0 0 6px rgba(255, 0, 170, 0.5);
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 16px;
+      gap: 8px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      font-size: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .tab.active {
+      background: rgba(0, 240, 255, 0.1);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+
+    .hidden { display: none; }
+
+    .section-title {
+      font-size: 14px;
+      color: var(--cyan);
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>价值优先 · 记账工作台</h1>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('add')">记账+决策</div>
+    <div class="tab" onclick="switchTab('list')">记录</div>
+  </div>
+
+  <div id="tab-add">
+    <div class="card">
+      <label>消费内容</label>
+      <input type="text" id="name" placeholder="例如：买床垫 / 吃饭">
+
+      <label>金额（元）</label>
+      <input type="number" id="amount" placeholder="0">
+
+      <label>月收入（用于判断金额分级）</label>
+      <input type="number" id="income" placeholder="例如：15000" value="10000">
+    </div>
+
+    <div class="card">
+      <div class="section-title">DECISION MATRIX // 决策打分</div>
+
+      <div class="score-item">
+        <span>1. 使用频率</span>
+        <select id="s1">
+          <option value="5">5 - 几乎每天</option>
+          <option value="4">4 - 每周≥4次</option>
+          <option value="3" selected>3 - 每周1-3次</option>
+          <option value="2">2 - 每月几次</option>
+          <option value="1">1 - 很少</option>
+        </select>
+      </div>
+      <div class="score-item">
+        <span>2. 价值持续时间</span>
+        <select id="s2">
+          <option value="5">5 - ≥2年</option>
+          <option value="4">4 - 1-2年</option>
+          <option value="3" selected>3 - 6-12个月</option>
+          <option value="2">2 - 1-6个月</option>
+          <option value="1">1 - <1个月</option>
+        </select>
+      </div>
+      <div class="score-item">
+        <span>3. 生活质量提升</span>
+        <select id="s3">
+          <option value="5">5 - 显著持续</option>
+          <option value="4">4 - 明显</option>
+          <option value="3" selected>3 - 一定</option>
+          <option value="2">2 - 轻微</option>
+          <option value="1">1 - 几乎无</option>
+        </select>
+      </div>
+      <div class="score-item">
+        <span>4. 时间/精力回报</span>
+        <select id="s4">
+          <option value="5">5 - ≥10小时/月</option>
+          <option value="4">4 - 5-10小时</option>
+          <option value="3" selected>3 - 2-5小时</option>
+          <option value="2">2 - 很少</option>
+          <option value="1">1 - 几乎无</option>
+        </select>
+      </div>
+      <div class="score-item">
+        <span>5. 能力/健康增值</span>
+        <select id="s5">
+          <option value="5">5 - 明显长期</option>
+          <option value="4">4 - 较明显</option>
+          <option value="3" selected>3 - 一定</option>
+          <option value="2">2 - 微弱</option>
+          <option value="1">1 - 无</option>
+        </select>
+      </div>
+      <div class="score-item">
+        <span>6. 不可替代性</span>
+        <select id="s6">
+          <option value="5">5 - 几乎无替代</option>
+          <option value="4">4 - 替代更差</option>
+          <option value="3" selected>3 - 有可接受替代</option>
+          <option value="2">2 - 有较好替代</option>
+          <option value="1">1 - 有明显更好</option>
+        </select>
+      </div>
+      <div class="score-item">
+        <span>7. 财务安全影响</span>
+        <select id="s7">
+          <option value="5">5 - 完全不影响</option>
+          <option value="4">4 - 极小</option>
+          <option value="3" selected>3 - 轻微可接受</option>
+          <option value="2">2 - 明显压缩</option>
+          <option value="1">1 - 动用应急金</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" onclick="calculate()">计算决策</button>
+      <div id="result" class="result hidden"></div>
+    </div>
+
+    <div class="card">
+      <button class="btn-primary" onclick="saveRecord()">保存这笔记录</button>
+      <button class="btn-secondary" onclick="clearForm()">清空</button>
+    </div>
+  </div>
+
+  <div id="tab-list" class="hidden">
+    <div class="card">
+      <div id="record-list" style="color:var(--muted)">暂无记录</div>
+    </div>
+    <button class="btn-secondary" onclick="clearAll()">清空所有记录</button>
+  </div>
+
+<script>
+  const weights = [4, 3, 4, 3, 2, 2, 2];
+
+  function switchTab(tab) {
+    document.getElementById('tab-add').classList.toggle('hidden', tab !== 'add');
+    document.getElementById('tab-list').classList.toggle('hidden', tab !== 'list');
+    document.querySelectorAll('.tab').forEach((el, i) => {
+      el.classList.toggle('active', (tab === 'add' && i === 0) || (tab === 'list' && i === 1));
+    });
+    if (tab === 'list') renderList();
+  }
+
+  function calculate() {
+    let total = 0;
+    for (let i = 1; i <= 7; i++) {
+      const score = parseInt(document.getElementById('s' + i).value);
+      total += score * weights[i-1];
+    }
+
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const income = parseFloat(document.getElementById('income').value) || 10000;
+    const ratio = amount / income;
+
+    let decision = '';
+    let cls = '';
+
+    if (total >= 80) {
+      decision = `总分 ${total} → 强烈建议购买`;
+      cls = 'high';
+    } else if (total >= 65) {
+      decision = `总分 ${total} → 建议购买`;
+      cls = 'high';
+    } else if (total >= 50) {
+      decision = `总分 ${total} → 谨慎/延后`;
+      cls = 'mid';
+    } else if (total >= 35) {
+      decision = `总分 ${total} → 不建议购买`;
+      cls = 'low';
+    } else {
+      decision = `总分 ${total} → 明确拒绝`;
+      cls = 'low';
+    }
+
+    if (ratio > 0.1 && total < 75) {
+      decision += '（大额不足）';
+      cls = 'low';
+    } else if (ratio > 0.03 && total < 65) {
+      decision += '（中额建议提高）';
+      cls = 'mid';
+    }
+
+    const resultEl = document.getElementById('result');
+    resultEl.className = 'result ' + cls;
+    resultEl.innerText = decision;
+    resultEl.classList.remove('hidden');
+
+    return total;
+  }
+
+  function saveRecord() {
+    const name = document.getElementById('name').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value);
+    if (!name || !amount) {
+      alert('请填写消费内容和金额');
+      return;
+    }
+
+    const total = calculate();
+    const records = JSON.parse(localStorage.getItem('money_records') || '[]');
+    records.unshift({
+      id: Date.now(),
+      name,
+      amount,
+      score: total,
+      date: new Date().toLocaleString()
+    });
+    localStorage.setItem('money_records', JSON.stringify(records));
+    alert('已保存');
+    clearForm();
+  }
+
+  function renderList() {
+    const records = JSON.parse(localStorage.getItem('money_records') || '[]');
+    const list = document.getElementById('record-list');
+    if (records.length === 0) {
+      list.innerHTML = '<span style="color:var(--muted)">暂无记录</span>';
+      return;
+    }
+    list.innerHTML = records.map(r => `
+      <div class="record">
+        <div><strong>${r.name}</strong> <span class="record-amount">-¥${r.amount}</span></div>
+        <div style="color:var(--muted);font-size:12px;margin-top:4px;">${r.date} ｜ 决策分：${r.score}</div>
+      </div>
+    `).join('');
+  }
+
+  function clearForm() {
+    document.getElementById('name').value = '';
+    document.getElementById('amount').value = '';
+    document.getElementById('result').classList.add('hidden');
+  }
+
+  function clearAll() {
+    if (confirm('确定清空所有记录？')) {
+      localStorage.removeItem('money_records');
+      renderList();
+    }
+  }
+</script>
+</body>
+</html>
